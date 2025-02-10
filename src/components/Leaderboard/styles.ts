@@ -21,6 +21,8 @@ export const SearchContainer = styled.div`
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
+  position: relative;
+  z-index: 1001;      
 `;
 
 export const SearchInput = styled.div`
@@ -94,6 +96,8 @@ export const GroupIcon = styled(HiSquare3Stack3D)`
 export const TableContainer = styled.div`
   background: transparent;
   overflow: hidden;
+  position: relative;  // Eklendi
+  z-index: 1000;      // Eklendi: autocomplete'in altında kalması için
 `;
 
 export const TableHeaderContainer = styled.div`
@@ -226,7 +230,7 @@ export const TableCell = styled.div`
 
   &:last-child {
     padding-right: 2rem;
-    justify-content: flex-end;
+    justify-content: center;
   }
 `;
 
@@ -297,4 +301,64 @@ export const SkeletonFlag = styled.div`
 export const MoneyValue = styled.span`
   color: #8364e8;
   font-weight: 600;
+`;
+
+export const AutocompleteSuggestions = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
+  background: rgba(20, 20, 40, 0.95);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  z-index: 1001;
+`;
+
+export const SuggestionItem = styled.div`
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(131, 100, 232, 0.1);
+  }
+
+  > ${CountryContainer} {
+    margin-left: auto;
+  }
+`;
+
+export const SuggestionSkeleton = styled.div`
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  > div {
+    height: 20px;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.1) 25%,
+      rgba(255, 255, 255, 0.2) 37%,
+      rgba(255, 255, 255, 0.1) 63%
+    );
+    border-radius: 4px;
+    animation: loading 1.4s ease infinite;
+  }
+
+  > div:first-child {
+    width: 200px;
+  }
+
+  > div:last-child {
+    width: 100px;
+  }
 `;

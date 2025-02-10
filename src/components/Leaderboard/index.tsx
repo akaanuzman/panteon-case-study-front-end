@@ -17,6 +17,7 @@ import { Spin, Alert } from 'antd';
 import { getCountryName, getCountryFlagPath } from '../../utils/countryUtils';
 import { SkeletonTable } from './SkeletonTable';
 import { useDebounce } from '@/hooks/useDebounce';
+import { Timer } from '../Timer';
 
 interface LeaderboardData {
   id: number;
@@ -390,7 +391,6 @@ export const Leaderboard = () => {
   return (
     <S.LeaderboardContainer>
       <S.Title>Leaderboard</S.Title>
-
       <S.SearchContainer>
         <S.SearchInput>
           <S.SearchIcon />

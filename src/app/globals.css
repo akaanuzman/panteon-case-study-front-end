@@ -16,6 +16,7 @@ body {
 body {
   color: white;
   min-height: 100vh;
+  background: #1f1147;
 }
 
 a {
@@ -69,8 +70,4 @@ a {
   font-size: 1rem !important;
   font-family: inherit !important;
   opacity: 1 !important;
-}
-
-.country-flag {
-  border-radius: 50%;
 }

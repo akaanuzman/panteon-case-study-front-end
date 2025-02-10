@@ -3,7 +3,6 @@ import Image from 'next/image';
 
 export const LayoutContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(180deg, #1F1147 0%, #1A0C2C 100%);
 `;
 
 export const Header = styled.header`
@@ -25,4 +24,4 @@ export const Content = styled.main`
   display: flex;
   flex-direction: column;
   align-items: center;
-`; 
+`;

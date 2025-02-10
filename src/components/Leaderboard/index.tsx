@@ -1,7 +1,6 @@
 "use client";
 
-import { Input, InputRef } from 'antd';  // Add InputRef import
-import { FilterOutlined } from '@ant-design/icons';
+import { Input, InputRef } from 'antd';
 import {
   useReactTable,
   getCoreRowModel,
@@ -58,6 +57,11 @@ interface AutocompleteResponse {
   suggestions: Suggestion[];
 }
 
+interface SearchResponse {
+  topPlayers: ApiResponse;
+  surroundingPlayers: ApiResponse;
+}
+
 const fetchLeaderboardData = async (): Promise<LeaderboardData[]> => {
   try {
     const response = await fetch(`http://localhost:3000/api/leaderboard/top`, {
@@ -91,6 +95,48 @@ const fetchLeaderboardData = async (): Promise<LeaderboardData[]> => {
   }
 };
 
+const fetchSearchResults = async (username: string): Promise<LeaderboardData[]> => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/leaderboard/search?username=${encodeURIComponent(username)}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data: SearchResponse = await response.json();
+
+    // Birleştir ve sırala
+    const allPlayers = [
+      ...data.topPlayers.players,
+      ...data.surroundingPlayers.players
+    ];
+
+    // Sıralama numarasına göre sırala
+    const sortedPlayers = allPlayers.sort((a, b) => a.rank - b.rank);
+
+    // Tekrar eden kayıtları temizle
+    const uniquePlayers = Array.from(new Map(sortedPlayers.map(item => [item.player.id, item])).values());
+
+    return uniquePlayers.map((item) => ({
+      id: item.player.id,
+      ranking: item.rank,
+      playerName: item.player.username,
+      country: item.player.country,
+      countryName: getCountryName(item.player.country),
+      countryFlag: getCountryFlagPath(item.player.country),
+      money: item.player.money
+    }));
+  } catch (error) {
+    console.error('Error fetching search results:', error);
+    throw error;
+  }
+};
+
 const columnHelper = createColumnHelper<LeaderboardData>();
 
 const defaultColumns = [
@@ -105,9 +151,11 @@ const defaultColumns = [
       </S.HeaderContent>
     ),
     cell: info => (
-      <S.RankingNumber>
-        {info.getValue()}
-      </S.RankingNumber>
+      info.row.original.id === -1 ? null : (
+        <S.RankingNumber>
+          {info.getValue()}
+        </S.RankingNumber>
+      )
     ),
   }),
   columnHelper.accessor('playerName', {
@@ -137,22 +185,24 @@ const defaultColumns = [
       </S.HeaderContent>
     ),
     cell: info => (
-      <S.CountryContainer>
-        {info.row.original.countryFlag && (
-          <S.FlagContainer>
-            <S.CountryFlag
-              src={info.row.original.countryFlag || ''}  // Add fallback empty string
-              alt={`${info.getValue()} flag`}
-              width={24}
-              height={24}
-              style={{ borderRadius: '50%' }}
-            />
-          </S.FlagContainer>
-        )}
-        <S.CountryCode>
-          {info.row.original.countryName}
-        </S.CountryCode>
-      </S.CountryContainer>
+      info.row.original.id === -1 ? null : (
+        <S.CountryContainer>
+          {info.row.original.countryFlag && (
+            <S.FlagContainer>
+              <S.CountryFlag
+                src={info.row.original.countryFlag || ''}  // Add fallback empty string
+                alt={`${info.getValue()} flag`}
+                width={24}
+                height={24}
+                style={{ borderRadius: '50%' }}
+              />
+            </S.FlagContainer>
+          )}
+          <S.CountryCode>
+            {info.row.original.countryName}
+          </S.CountryCode>
+        </S.CountryContainer>
+      )
     ),
   }),
   columnHelper.accessor('money', {
@@ -166,9 +216,11 @@ const defaultColumns = [
       </S.HeaderContent>
     ),
     cell: info => (
-      <S.MoneyValue>
-        {info.getValue()}
-      </S.MoneyValue>
+      info.row.original.id === -1 ? null : (
+        <S.MoneyValue>
+          {info.getValue()}
+        </S.MoneyValue>
+      )
     ),
   }),
 ];
@@ -178,16 +230,50 @@ export const Leaderboard = () => {
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(
     defaultColumns.map(column => (column.id as string))
   );
+  const [searchValue, setSearchValue] = useState('');
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [searchResults, setSearchResults] = useState<LeaderboardData[] | null>(null);
+
+  const searchInputRef = useRef<InputRef>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const { data = [], isLoading, error, isError } = useQuery({
     queryKey: ['leaderboard'],
     queryFn: fetchLeaderboardData,
   });
 
+  // tableData'yı useMemo ile optimize et
+  const tableData = useMemo(() => {
+    if (!searchResults) return data;
+
+    // İlk 100 oyuncuyu al
+    const top100 = searchResults.slice(0, 100);
+
+    // Separator ekle
+    const separator = {
+      id: -1,
+      ranking: -1,
+      playerName: "...",
+      country: "",
+      countryName: "",
+      countryFlag: "",
+      money: 0
+    };
+
+    // 100'den sonraki oyuncuları al
+    const remainingPlayers = searchResults.slice(100);
+
+    // Eğer 100'den sonra oyuncu varsa separator ekle
+    return remainingPlayers.length > 0
+      ? [...top100, separator, ...remainingPlayers]
+      : searchResults;
+  }, [searchResults, data]);
+
   const [columns] = useState(() => [...defaultColumns]);
 
   const table = useReactTable({
-    data: data,
+    data: tableData,
     columns,
     state: {
       columnOrder,
@@ -207,11 +293,6 @@ export const Leaderboard = () => {
     newColumnOrder.splice(targetIndex, 0, draggedColumnId);
     setColumnOrder(newColumnOrder);
   };
-
-  const [searchValue, setSearchValue] = useState('');
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const searchInputRef = useRef<InputRef>(null);  // Change ref type to InputRef
 
   const debouncedSearch = useDebounce(async (query: string) => {
     if (query.length < 3) {
@@ -239,10 +320,35 @@ export const Leaderboard = () => {
     debouncedSearch(value);
   };
 
-  const handleSuggestionClick = (suggestion: Suggestion) => {
+  const handleSuggestionClick = async (suggestion: Suggestion) => {
     setSearchValue(suggestion.username);
     setSuggestions([]);
-    searchInputRef.current?.input?.blur();  // Update blur call
+    searchInputRef.current?.input?.blur();
+
+    try {
+      const results = await fetchSearchResults(suggestion.username);
+      setSearchResults(results);
+      setSorting([]); // Sıralamayı sıfırla
+
+      // Aranan oyuncunun indexini bul
+      const searchedPlayerIndex = results.findIndex(
+        player => player.playerName === suggestion.username
+      );
+
+      // Scroll to player position
+      if (searchedPlayerIndex !== -1 && tableRef.current) {
+        setTimeout(() => {
+          const rowHeight = 50;
+          const scrollPosition = searchedPlayerIndex * rowHeight;
+          tableRef.current?.scrollTo({
+            top: scrollPosition,
+            behavior: 'smooth'
+          });
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    }
   };
 
   const handleInputBlur = () => {
@@ -330,7 +436,7 @@ export const Leaderboard = () => {
         </S.GroupButton>
       </S.SearchContainer>
 
-      <S.TableContainer>
+      <S.TableContainer ref={tableRef}>
         <S.TableHeaderContainer>
           <S.TableHeaderRow>
             {table.getHeaderGroups().map(headerGroup => (
@@ -363,7 +469,11 @@ export const Leaderboard = () => {
 
         <S.TableBody>
           {table.getRowModel().rows.map(row => (
-            <S.TableRow key={row.id}>
+            <S.TableRow
+              key={row.id}
+              isSeparator={row.original.id === -1}
+              isHighlighted={row.original.playerName === searchValue}
+            >
               {row.getVisibleCells().map(cell => (
                 <S.TableCell key={cell.id}>
                   {flexRender(

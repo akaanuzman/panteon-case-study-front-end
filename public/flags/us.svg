@@ -1,45 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
-  <rect width="900" height="600" fill="#bf0a30"/>
-  <rect y="46.15" width="900" height="46.15" fill="#fff"/>
-  <rect y="138.45" width="900" height="46.15" fill="#fff"/>
-  <rect y="230.75" width="900" height="46.15" fill="#fff"/>
-  <rect y="323.05" width="900" height="46.15" fill="#fff"/>
-  <rect y="415.35" width="900" height="46.15" fill="#fff"/>
-  <rect y="507.65" width="900" height="46.15" fill="#fff"/>
-  <rect width="346.15" height="323.05" fill="#002868"/>
-  <g fill="#fff">
-    <circle cx="28.85" cy="26.95" r="16.15"/>
-    <circle cx="86.55" cy="26.95" r="16.15"/>
-    <circle cx="144.25" cy="26.95" r="16.15"/>
-    <circle cx="201.95" cy="26.95" r="16.15"/>
-    <circle cx="259.65" cy="26.95" r="16.15"/>
-    <circle cx="317.35" cy="26.95" r="16.15"/>
-    <circle cx="57.7" cy="80.85" r="16.15"/>
-    <circle cx="115.4" cy="80.85" r="16.15"/>
-    <circle cx="173.1" cy="80.85" r="16.15"/>
-    <circle cx="230.8" cy="80.85" r="16.15"/>
-    <circle cx="288.5" cy="80.85" r="16.15"/>
-    <circle cx="28.85" cy="134.75" r="16.15"/>
-    <circle cx="86.55" cy="134.75" r="16.15"/>
-    <circle cx="144.25" cy="134.75" r="16.15"/>
-    <circle cx="201.95" cy="134.75" r="16.15"/>
-    <circle cx="259.65" cy="134.75" r="16.15"/>
-    <circle cx="317.35" cy="134.75" r="16.15"/>
-    <circle cx="57.7" cy="188.65" r="16.15"/>
-    <circle cx="115.4" cy="188.65" r="16.15"/>
-    <circle cx="173.1" cy="188.65" r="16.15"/>
-    <circle cx="230.8" cy="188.65" r="16.15"/>
-    <circle cx="288.5" cy="188.65" r="16.15"/>
-    <circle cx="28.85" cy="242.55" r="16.15"/>
-    <circle cx="86.55" cy="242.55" r="16.15"/>
-    <circle cx="144.25" cy="242.55" r="16.15"/>
-    <circle cx="201.95" cy="242.55" r="16.15"/>
-    <circle cx="259.65" cy="242.55" r="16.15"/>
-    <circle cx="317.35" cy="242.55" r="16.15"/>
-    <circle cx="57.7" cy="296.45" r="16.15"/>
-    <circle cx="115.4" cy="296.45" r="16.15"/>
-    <circle cx="173.1" cy="296.45" r="16.15"/>
-    <circle cx="230.8" cy="296.45" r="16.15"/>
-    <circle cx="288.5" cy="296.45" r="16.15"/>
-  </g>
-</svg> 
+<svg xmlns="http://www.w3.org/2000/svg" id="flag-icons-us" viewBox="0 0 640 480">
+  <path fill="#bd3d44" d="M0 0h640v480H0"/>
+  <path stroke="#fff" stroke-width="37" d="M0 55.3h640M0 129h640M0 203h640M0 277h640M0 351h640M0 425h640"/>
+  <path fill="#192f5d" d="M0 0h364.8v258.5H0"/>
+  <marker id="us-a" markerHeight="30" markerWidth="30">
+    <path fill="#fff" d="m14 0 9 27L0 10h28L5 27z"/>
+  </marker>
+  <path fill="none" marker-mid="url(#us-a)" d="m0 0 16 11h61 61 61 61 60L47 37h61 61 60 61L16 63h61 61 61 61 60L47 89h61 61 60 61L16 115h61 61 61 61 60L47 141h61 61 60 61L16 166h61 61 61 61 60L47 192h61 61 60 61L16 218h61 61 61 61 60z"/>
+</svg>

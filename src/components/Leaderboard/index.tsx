@@ -2,7 +2,6 @@
 
 import { Input } from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
-import Image from 'next/image';
 import {
   useReactTable,
   getCoreRowModel,
@@ -13,29 +12,72 @@ import {
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import * as S from './styles';
-import { HiSquare3Stack3D } from 'react-icons/hi2';
+import { useQuery } from '@tanstack/react-query';
+import { Spin, Alert } from 'antd';
+import { getCountryName, getCountryFlagPath } from '../../utils/countryUtils';
+import { SkeletonTable } from './SkeletonTable';
 
 interface LeaderboardData {
   id: number;
   ranking: number;
   playerName: string;
   country: string;
-  countryFlag: string;
+  countryName: string;
+  countryFlag?: string;
   money: number;
 }
 
-const defaultData: LeaderboardData[] = [
-  { id: 1, ranking: 1, playerName: "JohnDoe", country: "Japan", countryFlag: "/flags/jp.svg", money: 500 },
-  { id: 2, ranking: 2, playerName: "JohnDoe", country: "Sweeden", countryFlag: "/flags/se.svg", money: 750 },
-  { id: 3, ranking: 3, playerName: "JohnDoe", country: "U.S.A", countryFlag: "/flags/us.svg", money: 1000 },
-  { id: 4, ranking: 4, playerName: "JohnDoe", country: "Turkey", countryFlag: "/flags/tr.svg", money: 10 },
-  { id: 5, ranking: 5, playerName: "JohnDoe", country: "Bulgaria", countryFlag: "/flags/bg.svg", money: 40 },
-  { id: 6, ranking: 6, playerName: "JohnDoe", country: "Greek", countryFlag: "/flags/gr.svg", money: 2000 },
-  { id: 7, ranking: 7, playerName: "JohnDoe", country: "France", countryFlag: "/flags/fr.svg", money: 4000 },
-  { id: 8, ranking: 8, playerName: "JohnDoe", country: "Finland", countryFlag: "/flags/fi.svg", money: 250 },
-  { id: 9, ranking: 9, playerName: "JohnDoe", country: "Spain", countryFlag: "/flags/es.svg", money: 640 },
-  { id: 10, ranking: 10, playerName: "JohnDoe", country: "Germany", countryFlag: "/flags/de.svg", money: 800 },
-];
+interface PlayerData {
+  id: number;
+  username: string;
+  country: string;
+  money: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface PlayerResponse {
+  rank: number;
+  player: PlayerData;
+}
+
+interface ApiResponse {
+  total: number;
+  players: PlayerResponse[];
+}
+
+const fetchLeaderboardData = async (): Promise<LeaderboardData[]> => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/leaderboard/top`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data: ApiResponse = await response.json();
+    console.log('API Response:', data);
+
+    const mappedData = data.players.map((item) => ({
+      id: item.player.id,
+      ranking: item.rank,
+      playerName: item.player.username,
+      country: item.player.country,
+      countryName: getCountryName(item.player.country),
+      countryFlag: getCountryFlagPath(item.player.country),
+      money: item.player.money
+    }));
+
+    return mappedData;
+  } catch (error) {
+    console.error('Error fetching leaderboard data:', error);
+    throw error;
+  }
+};
 
 const columnHelper = createColumnHelper<LeaderboardData>();
 
@@ -78,15 +120,19 @@ const defaultColumns = [
     ),
     cell: info => (
       <S.CountryContainer>
-        <Image
-          src={info.row.original.countryFlag}
-          alt={`${info.getValue()} flag`}
-          width={24}
-          height={24}
-          className="country-flag"
-        />
+        {info.row.original.countryFlag && (
+          <S.FlagContainer>
+            <S.CountryFlag
+              src={info.row.original.countryFlag}
+              alt={`${info.getValue()} flag`}
+              width={24}
+              height={24}
+              style={{ borderRadius: '50%' }}
+            />
+          </S.FlagContainer>
+        )}
         <S.CountryCode>
-          {info.getValue()}
+          {info.row.original.countryName}
         </S.CountryCode>
       </S.CountryContainer>
     ),
@@ -108,16 +154,20 @@ const defaultColumns = [
 ];
 
 export const Leaderboard = () => {
-  const [data] = useState(defaultData);
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(
     defaultColumns.map(column => (column.id as string))
   );
 
+  const { data = [], isLoading, error, isError } = useQuery({
+    queryKey: ['leaderboard'],
+    queryFn: fetchLeaderboardData,
+  });
+
   const [columns] = useState(() => [...defaultColumns]);
 
   const table = useReactTable({
-    data,
+    data: data,
     columns,
     state: {
       columnOrder,
@@ -137,6 +187,31 @@ export const Leaderboard = () => {
     newColumnOrder.splice(targetIndex, 0, draggedColumnId);
     setColumnOrder(newColumnOrder);
   };
+
+  if (isLoading) {
+    return (
+      <S.LeaderboardContainer>
+        <S.Title>Leaderboard</S.Title>
+        <SkeletonTable />
+      </S.LeaderboardContainer>
+    );
+  }
+
+  if (isError) {
+    console.error('Leaderboard Error:', error);
+    return (
+      <S.LeaderboardContainer>
+        <S.Title>Leaderboard</S.Title>
+        <Alert
+          message="Error"
+          description="Failed to load leaderboard data. Please try again later."
+          type="error"
+          showIcon
+          style={{ margin: '2rem' }}
+        />
+      </S.LeaderboardContainer>
+    );
+  }
 
   return (
     <S.LeaderboardContainer>
@@ -203,4 +278,4 @@ export const Leaderboard = () => {
       </S.TableContainer>
     </S.LeaderboardContainer>
   );
-}; 
+};

@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { SearchOutlined } from '@ant-design/icons';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { HiSquare3Stack3D } from 'react-icons/hi2';
+import Image from 'next/image';
+
 
 export const LeaderboardContainer = styled.div`
   width: 100%;
@@ -212,13 +214,65 @@ export const CountryContainer = styled.div`
   gap: 0.75rem;
 `;
 
-export const CountryFlag = styled.img`
+export const FlagContainer = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+`;
+
+export const CountryFlag = styled(Image)`
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+`;
+
+export const SkeletonRow = styled(TableRow)`
+  opacity: 0.5;
+  pointer-events: none;
+`;
+
+export const SkeletonCell = styled(TableCell)`
+  &::after {
+    content: "";
+    display: block;
+    width: 60%;
+    height: 20px;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.1) 25%,
+      rgba(255, 255, 255, 0.2) 37%,
+      rgba(255, 255, 255, 0.1) 63%
+    );
+    border-radius: 4px;
+    animation: loading 1.4s ease infinite;
+  }
+
+  @keyframes loading {
+    0% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0 50%;
+    }
+  }
+`;
+
+export const SkeletonFlag = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  margin-right: 0.75rem;
 `;
 
 export const MoneyValue = styled.span`
   color: #8364e8;
   font-weight: 600;
-`; 
+`;

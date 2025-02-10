@@ -189,10 +189,10 @@ export const RankingNumber = styled.span`
   transition: all 0.2s ease;
 `;
 
-export const TableRow = styled.div`
+export const TableRow = styled.div<{ isSeparator?: boolean, isHighlighted?: boolean }>`
   display: grid;
   grid-template-columns: 0.5fr 1fr 1fr 0.5fr;
-  padding: 1.25rem 0;
+  padding: 1rem 0;
   background: rgba(20, 20, 40, 0.5);
   transition: all 0.2s ease;
   position: relative;
@@ -214,6 +214,25 @@ export const TableRow = styled.div`
       color: #8364e8;
     }
   }
+
+  ${props => props.isSeparator && `
+    height: 40px;
+    background: rgba(20, 20, 40, 0.5);
+    justify-content: center;
+    
+    ${TableCell} {
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.5);
+    }
+  `}
+
+  ${props => props.isHighlighted && `
+    background: rgba(131, 100, 232, 0.1);
+    
+    &:hover {
+      background: rgba(131, 100, 232, 0.15);
+    }
+  `}
 `;
 
 export const TableCell = styled.div`

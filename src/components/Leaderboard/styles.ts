@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, CaretUpOutlined, CaretDownOutlined } from '@ant-design/icons';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { HiSquare3Stack3D } from 'react-icons/hi2';
 import Image from 'next/image';
@@ -117,7 +117,6 @@ export const TableHeaderRow = styled.div`
 
 export const TableHeader = styled.div`
   padding: 0 1.5rem;
-  cursor: move;
   user-select: none;
   display: flex;
   align-items: center;
@@ -129,13 +128,36 @@ export const TableHeader = styled.div`
 
   &:last-child {
     padding-right: 2rem;
-    text-align: right;
+  }
+`;
+
+export const HeaderContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  
+  &:hover {
+    color: rgba(255, 255, 255, 0.8);
   }
 `;
 
 export const SortIcon = styled(BsThreeDotsVertical)`
   color: rgba(255, 255, 255, 0.5);
   font-size: 1rem;
+  margin-left: auto;
+`;
+
+export const SortIconAsc = styled(CaretUpOutlined)`
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  margin-left: auto;
+`;
+
+export const SortIconDesc = styled(CaretDownOutlined)`
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  margin-left: auto;
 `;
 
 export const TableBody = styled.div`

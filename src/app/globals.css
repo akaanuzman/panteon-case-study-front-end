@@ -14,7 +14,6 @@ body {
 }
 
 body {
-  background: linear-gradient(180deg, #1F1147 0%, #1A0C2C 100%);
   color: white;
   min-height: 100vh;
 }
@@ -58,7 +57,7 @@ a {
   caret-color: white !important;
 }
 
-.ant-input:hover, 
+.ant-input:hover,
 .ant-input:focus {
   background: transparent !important;
   outline: none !important;

@@ -13,6 +13,7 @@ import {
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import * as S from './styles';
+import { HiSquare3Stack3D } from 'react-icons/hi2';
 
 interface LeaderboardData {
   id: number;
@@ -41,7 +42,12 @@ const columnHelper = createColumnHelper<LeaderboardData>();
 const defaultColumns = [
   columnHelper.accessor('ranking', {
     id: 'ranking',
-    header: 'Ranking',
+    header: () => (
+      <>
+        Ranking
+        <S.SortIcon />
+      </>
+    ),
     cell: info => (
       <S.RankingNumber>
         {info.getValue()}
@@ -50,7 +56,12 @@ const defaultColumns = [
   }),
   columnHelper.accessor('playerName', {
     id: 'playerName',
-    header: 'Player Name',
+    header: () => (
+      <>
+        Player Name
+        <S.SortIcon />
+      </>
+    ),
     cell: info => (
       <S.PlayerName>
         {info.getValue()}
@@ -59,7 +70,12 @@ const defaultColumns = [
   }),
   columnHelper.accessor('country', {
     id: 'country',
-    header: 'Country',
+    header: () => (
+      <>
+        Country
+        <S.SortIcon />
+      </>
+    ),
     cell: info => (
       <S.CountryContainer>
         <Image
@@ -70,24 +86,19 @@ const defaultColumns = [
           className="country-flag"
         />
         <S.CountryCode>
-          {info.getValue() === "U.S.A" ? "US" : 
-           info.getValue() === "Sweeden" ? "SE" :
-           info.getValue() === "Finland" ? "FI" :
-           info.getValue() === "Greek" ? "GR" :
-           info.getValue() === "Japan" ? "JP" :
-           info.getValue() === "Turkey" ? "TR" :
-           info.getValue() === "Bulgaria" ? "BG" :
-           info.getValue() === "France" ? "FR" :
-           info.getValue() === "Spain" ? "ES" :
-           info.getValue() === "Germany" ? "DE" : 
-           info.getValue().substring(0, 2).toUpperCase()}
+          {info.getValue()}
         </S.CountryCode>
       </S.CountryContainer>
     ),
   }),
   columnHelper.accessor('money', {
     id: 'money',
-    header: 'Money',
+    header: () => (
+      <>
+        Money
+        <S.SortIcon />
+      </>
+    ),
     cell: info => (
       <S.MoneyValue>
         {info.getValue()}
@@ -130,7 +141,7 @@ export const Leaderboard = () => {
   return (
     <S.LeaderboardContainer>
       <S.Title>Leaderboard</S.Title>
-      
+
       <S.SearchContainer>
         <S.SearchInput>
           <S.SearchIcon />
@@ -139,9 +150,9 @@ export const Leaderboard = () => {
             onChange={(e) => setGlobalFilter(e.target.value)}
           />
         </S.SearchInput>
-        <S.FilterButton>
-          <FilterOutlined style={{ fontSize: '20px', color: 'white' }} />
-        </S.FilterButton>
+        <S.GroupButton>
+          <S.GroupIcon />
+        </S.GroupButton>
       </S.SearchContainer>
 
       <S.TableContainer>

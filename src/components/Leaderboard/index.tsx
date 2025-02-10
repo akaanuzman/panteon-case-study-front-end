@@ -1,6 +1,6 @@
 "use client";
 
-import { Input } from 'antd';
+import { Input, InputRef } from 'antd';  // Add InputRef import
 import { FilterOutlined } from '@ant-design/icons';
 import {
   useReactTable,
@@ -8,16 +8,16 @@ import {
   flexRender,
   ColumnOrderState,
   createColumnHelper,
-  getFilteredRowModel,
   getSortedRowModel,
   SortingState,
 } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import * as S from './styles';
 import { useQuery } from '@tanstack/react-query';
 import { Spin, Alert } from 'antd';
 import { getCountryName, getCountryFlagPath } from '../../utils/countryUtils';
 import { SkeletonTable } from './SkeletonTable';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface LeaderboardData {
   id: number;
@@ -46,6 +46,16 @@ interface PlayerResponse {
 interface ApiResponse {
   total: number;
   players: PlayerResponse[];
+}
+
+interface Suggestion {
+  username: string;
+  country: string;
+}
+
+interface AutocompleteResponse {
+  query: string;
+  suggestions: Suggestion[];
 }
 
 const fetchLeaderboardData = async (): Promise<LeaderboardData[]> => {
@@ -131,7 +141,7 @@ const defaultColumns = [
         {info.row.original.countryFlag && (
           <S.FlagContainer>
             <S.CountryFlag
-              src={info.row.original.countryFlag}
+              src={info.row.original.countryFlag || ''}  // Add fallback empty string
               alt={`${info.getValue()} flag`}
               width={24}
               height={24}
@@ -165,7 +175,6 @@ const defaultColumns = [
 
 export const Leaderboard = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(
     defaultColumns.map(column => (column.id as string))
   );
@@ -182,15 +191,12 @@ export const Leaderboard = () => {
     columns,
     state: {
       columnOrder,
-      globalFilter,
       sorting,
     },
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
   });
 
   const moveColumn = (draggedColumnId: string, targetColumnId: string) => {
@@ -200,6 +206,48 @@ export const Leaderboard = () => {
     newColumnOrder.splice(draggedIndex, 1);
     newColumnOrder.splice(targetIndex, 0, draggedColumnId);
     setColumnOrder(newColumnOrder);
+  };
+
+  const [searchValue, setSearchValue] = useState('');
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const searchInputRef = useRef<InputRef>(null);  // Change ref type to InputRef
+
+  const debouncedSearch = useDebounce(async (query: string) => {
+    if (query.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    try {
+      setIsLoadingSuggestions(true);
+      const response = await fetch(`http://localhost:3000/api/leaderboard/autocomplete?q=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data: AutocompleteResponse = await response.json();
+      setSuggestions(data.suggestions);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+      setSuggestions([]);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  }, 300);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    debouncedSearch(value);
+  };
+
+  const handleSuggestionClick = (suggestion: Suggestion) => {
+    setSearchValue(suggestion.username);
+    setSuggestions([]);
+    searchInputRef.current?.input?.blur();  // Update blur call
+  };
+
+  const handleInputBlur = () => {
+    // Delay hiding suggestions to allow click events to register
+    setTimeout(() => setSuggestions([]), 200);
   };
 
   if (isLoading) {
@@ -235,9 +283,47 @@ export const Leaderboard = () => {
         <S.SearchInput>
           <S.SearchIcon />
           <Input
-            placeholder="Search"
-            onChange={(e) => setGlobalFilter(e.target.value)}
+            ref={searchInputRef}
+            placeholder="Search player"
+            value={searchValue}
+            onChange={handleSearchChange}
+            onBlur={handleInputBlur}
           />
+          {suggestions.length > 0 && (
+            <S.AutocompleteSuggestions>
+              {suggestions.map((suggestion, index) => (
+                <S.SuggestionItem
+                  key={index}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  <span>{suggestion.username}</span>
+                  <S.CountryContainer>
+                    <S.FlagContainer>
+                      <S.CountryFlag
+                        src={getCountryFlagPath(suggestion.country) || ''}
+                        alt={`${suggestion.country} flag`}
+                        width={24}
+                        height={24}
+                      />
+                    </S.FlagContainer>
+                    <S.CountryCode>
+                      {getCountryName(suggestion.country)}
+                    </S.CountryCode>
+                  </S.CountryContainer>
+                </S.SuggestionItem>
+              ))}
+            </S.AutocompleteSuggestions>
+          )}
+          {isLoadingSuggestions && searchValue.length >= 3 && (
+            <S.AutocompleteSuggestions>
+              {[1, 2, 3].map((_, index) => (
+                <S.SuggestionSkeleton key={index}>
+                  <div />
+                  <div />
+                </S.SuggestionSkeleton>
+              ))}
+            </S.AutocompleteSuggestions>
+          )}
         </S.SearchInput>
         <S.GroupButton>
           <S.GroupIcon />

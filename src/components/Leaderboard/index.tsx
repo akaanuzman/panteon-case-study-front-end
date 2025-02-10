@@ -9,6 +9,8 @@ import {
   ColumnOrderState,
   createColumnHelper,
   getFilteredRowModel,
+  getSortedRowModel,
+  SortingState,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import * as S from './styles';
@@ -84,11 +86,13 @@ const columnHelper = createColumnHelper<LeaderboardData>();
 const defaultColumns = [
   columnHelper.accessor('ranking', {
     id: 'ranking',
-    header: () => (
-      <>
-        Ranking
-        <S.SortIcon />
-      </>
+    header: ({ column }) => (
+      <S.HeaderContent onClick={() => column.toggleSorting()}>
+        <span>Ranking</span>
+        {column.getIsSorted() === 'asc' && <S.SortIconAsc />}
+        {column.getIsSorted() === 'desc' && <S.SortIconDesc />}
+        {!column.getIsSorted() && <S.SortIcon />}
+      </S.HeaderContent>
     ),
     cell: info => (
       <S.RankingNumber>
@@ -98,11 +102,13 @@ const defaultColumns = [
   }),
   columnHelper.accessor('playerName', {
     id: 'playerName',
-    header: () => (
-      <>
-        Player Name
-        <S.SortIcon />
-      </>
+    header: ({ column }) => (
+      <S.HeaderContent onClick={() => column.toggleSorting()}>
+        <span>Player Name</span>
+        {column.getIsSorted() === 'asc' && <S.SortIconAsc />}
+        {column.getIsSorted() === 'desc' && <S.SortIconDesc />}
+        {!column.getIsSorted() && <S.SortIcon />}
+      </S.HeaderContent>
     ),
     cell: info => (
       <S.PlayerName>
@@ -112,11 +118,13 @@ const defaultColumns = [
   }),
   columnHelper.accessor('country', {
     id: 'country',
-    header: () => (
-      <>
-        Country
-        <S.SortIcon />
-      </>
+    header: ({ column }) => (
+      <S.HeaderContent onClick={() => column.toggleSorting()}>
+        <span>Country</span>
+        {column.getIsSorted() === 'asc' && <S.SortIconAsc />}
+        {column.getIsSorted() === 'desc' && <S.SortIconDesc />}
+        {!column.getIsSorted() && <S.SortIcon />}
+      </S.HeaderContent>
     ),
     cell: info => (
       <S.CountryContainer>
@@ -139,11 +147,13 @@ const defaultColumns = [
   }),
   columnHelper.accessor('money', {
     id: 'money',
-    header: () => (
-      <>
-        Money
-        <S.SortIcon />
-      </>
+    header: ({ column }) => (
+      <S.HeaderContent onClick={() => column.toggleSorting()}>
+        <span>Money</span>
+        {column.getIsSorted() === 'asc' && <S.SortIconAsc />}
+        {column.getIsSorted() === 'desc' && <S.SortIconDesc />}
+        {!column.getIsSorted() && <S.SortIcon />}
+      </S.HeaderContent>
     ),
     cell: info => (
       <S.MoneyValue>
@@ -154,6 +164,7 @@ const defaultColumns = [
 ];
 
 export const Leaderboard = () => {
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(
     defaultColumns.map(column => (column.id as string))
@@ -172,7 +183,10 @@ export const Leaderboard = () => {
     state: {
       columnOrder,
       globalFilter,
+      sorting,
     },
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     onColumnOrderChange: setColumnOrder,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

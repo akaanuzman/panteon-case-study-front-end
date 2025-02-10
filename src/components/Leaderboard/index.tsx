@@ -234,6 +234,7 @@ export const Leaderboard = () => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [searchResults, setSearchResults] = useState<LeaderboardData[] | null>(null);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
 
   const searchInputRef = useRef<InputRef>(null);
   const tableRef = useRef<HTMLDivElement>(null);
@@ -324,30 +325,35 @@ export const Leaderboard = () => {
     setSearchValue(suggestion.username);
     setSuggestions([]);
     searchInputRef.current?.input?.blur();
+    setIsSearchLoading(true); // Set loading state
 
     try {
       const results = await fetchSearchResults(suggestion.username);
       setSearchResults(results);
-      setSorting([]); // Sıralamayı sıfırla
+      setSorting([]); // Reset sorting
 
-      // Aranan oyuncunun indexini bul
+      // Find searched player index
       const searchedPlayerIndex = results.findIndex(
         player => player.playerName === suggestion.username
       );
 
-      // Scroll to player position
-      if (searchedPlayerIndex !== -1 && tableRef.current) {
+      // Set search results and scroll after a small delay
+      if (searchedPlayerIndex !== -1) {
+        const rowHeight = 50;
+        const scrollPosition = searchedPlayerIndex * rowHeight;
+
+        // Use setTimeout to ensure DOM is updated
         setTimeout(() => {
-          const rowHeight = 50;
-          const scrollPosition = searchedPlayerIndex * rowHeight;
           tableRef.current?.scrollTo({
             top: scrollPosition,
             behavior: 'smooth'
           });
+          setIsSearchLoading(false); // Clear loading state
         }, 100);
       }
     } catch (error) {
       console.error('Error fetching search results:', error);
+      setIsSearchLoading(false); // Clear loading state on error
     }
   };
 
@@ -436,56 +442,60 @@ export const Leaderboard = () => {
         </S.GroupButton>
       </S.SearchContainer>
 
-      <S.TableContainer ref={tableRef}>
-        <S.TableHeaderContainer>
-          <S.TableHeaderRow>
-            {table.getHeaderGroups().map(headerGroup => (
-              headerGroup.headers.map(header => (
-                <S.TableHeader
-                  key={header.id}
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData('text/plain', header.id);
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const draggedColumnId = e.dataTransfer.getData('text/plain');
-                    const targetColumnId = header.id;
-                    moveColumn(draggedColumnId, targetColumnId);
-                  }}
-                >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </S.TableHeader>
-              ))
-            ))}
-          </S.TableHeaderRow>
-        </S.TableHeaderContainer>
-
-        <S.TableBody>
-          {table.getRowModel().rows.map(row => (
-            <S.TableRow
-              key={row.id}
-              isSeparator={row.original.id === -1}
-              isHighlighted={row.original.playerName === searchValue}
-            >
-              {row.getVisibleCells().map(cell => (
-                <S.TableCell key={cell.id}>
-                  {flexRender(
-                    cell.column.columnDef.cell,
-                    cell.getContext()
-                  )}
-                </S.TableCell>
+      {isSearchLoading ? (
+        <SkeletonTable />
+      ) : (
+        <S.TableContainer ref={tableRef}>
+          <S.TableHeaderContainer>
+            <S.TableHeaderRow>
+              {table.getHeaderGroups().map(headerGroup => (
+                headerGroup.headers.map(header => (
+                  <S.TableHeader
+                    key={header.id}
+                    draggable
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('text/plain', header.id);
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const draggedColumnId = e.dataTransfer.getData('text/plain');
+                      const targetColumnId = header.id;
+                      moveColumn(draggedColumnId, targetColumnId);
+                    }}
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </S.TableHeader>
+                ))
               ))}
-            </S.TableRow>
-          ))}
-        </S.TableBody>
-      </S.TableContainer>
+            </S.TableHeaderRow>
+          </S.TableHeaderContainer>
+
+          <S.TableBody>
+            {table.getRowModel().rows.map(row => (
+              <S.TableRow
+                key={row.id}
+                isSeparator={row.original.id === -1}
+                isHighlighted={row.original.playerName === searchValue}
+              >
+                {row.getVisibleCells().map(cell => (
+                  <S.TableCell key={cell.id}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </S.TableCell>
+                ))}
+              </S.TableRow>
+            ))}
+          </S.TableBody>
+        </S.TableContainer>
+      )}
     </S.LeaderboardContainer>
   );
 };

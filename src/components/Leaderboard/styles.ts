@@ -381,3 +381,59 @@ export const SuggestionSkeleton = styled.div`
     width: 100px;
   }
 `;
+
+export const GroupedSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+export const CountryGroup = styled.div`
+  background: rgba(20, 20, 40, 0.5);
+  border-radius: 12px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+`;
+
+export const CountryHeader = styled.div`
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(131, 100, 232, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  ${CountryContainer} {
+    gap: 1rem;
+  }
+
+  ${CountryFlag} {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  ${CountryCode} {
+    font-size: 1.25rem;
+  }
+`;
+
+export const GroupedPlayers = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const GroupedPlayerRow = styled.div`
+  display: grid;
+  grid-template-columns: 0.5fr 1fr 0.5fr;
+  padding: 0.75rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba(131, 100, 232, 0.05);
+  }
+`;

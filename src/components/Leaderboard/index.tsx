@@ -13,11 +13,10 @@ import {
 import { useState, useMemo, useRef } from 'react';
 import * as S from './styles';
 import { useQuery } from '@tanstack/react-query';
-import { Spin, Alert } from 'antd';
+import { Alert } from 'antd';
 import { getCountryName, getCountryFlagPath } from '../../utils/countryUtils';
 import { SkeletonTable } from './SkeletonTable';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Timer } from '../Timer';
 
 interface LeaderboardData {
   id: number;
@@ -61,6 +60,10 @@ interface AutocompleteResponse {
 interface SearchResponse {
   topPlayers: ApiResponse;
   surroundingPlayers: ApiResponse;
+}
+
+interface GroupedData {
+  [country: string]: LeaderboardData[];
 }
 
 const fetchLeaderboardData = async (): Promise<LeaderboardData[]> => {
@@ -236,6 +239,7 @@ export const Leaderboard = () => {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [searchResults, setSearchResults] = useState<LeaderboardData[] | null>(null);
   const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [isGrouped, setIsGrouped] = useState(false);
 
   const searchInputRef = useRef<InputRef>(null);
   const tableRef = useRef<HTMLDivElement>(null);
@@ -271,6 +275,20 @@ export const Leaderboard = () => {
       ? [...top100, separator, ...remainingPlayers]
       : searchResults;
   }, [searchResults, data]);
+
+  const groupedData = useMemo(() => {
+    if (!isGrouped) return null;
+
+    return tableData.reduce((acc: GroupedData, player) => {
+      if (player.id === -1) return acc; // Skip separator
+
+      if (!acc[player.country]) {
+        acc[player.country] = [];
+      }
+      acc[player.country].push(player);
+      return acc;
+    }, {});
+  }, [tableData, isGrouped]);
 
   const [columns] = useState(() => [...defaultColumns]);
 
@@ -326,41 +344,41 @@ export const Leaderboard = () => {
     setSearchValue(suggestion.username);
     setSuggestions([]);
     searchInputRef.current?.input?.blur();
-    setIsSearchLoading(true); // Set loading state
+    setIsSearchLoading(true);
 
     try {
       const results = await fetchSearchResults(suggestion.username);
       setSearchResults(results);
-      setSorting([]); // Reset sorting
+      setSorting([]);
 
-      // Find searched player index
       const searchedPlayerIndex = results.findIndex(
         player => player.playerName === suggestion.username
       );
 
-      // Set search results and scroll after a small delay
       if (searchedPlayerIndex !== -1) {
         const rowHeight = 50;
         const scrollPosition = searchedPlayerIndex * rowHeight;
 
-        // Use setTimeout to ensure DOM is updated
         setTimeout(() => {
           tableRef.current?.scrollTo({
             top: scrollPosition,
             behavior: 'smooth'
           });
-          setIsSearchLoading(false); // Clear loading state
+          setIsSearchLoading(false);
         }, 100);
       }
     } catch (error) {
       console.error('Error fetching search results:', error);
-      setIsSearchLoading(false); // Clear loading state on error
+      setIsSearchLoading(false);
     }
   };
 
   const handleInputBlur = () => {
-    // Delay hiding suggestions to allow click events to register
     setTimeout(() => setSuggestions([]), 200);
+  };
+
+  const handleGroupClick = () => {
+    setIsGrouped(prev => !prev);
   };
 
   if (isLoading) {
@@ -437,13 +455,47 @@ export const Leaderboard = () => {
             </S.AutocompleteSuggestions>
           )}
         </S.SearchInput>
-        <S.GroupButton>
+        <S.GroupButton onClick={handleGroupClick}>
           <S.GroupIcon />
         </S.GroupButton>
       </S.SearchContainer>
 
       {isSearchLoading ? (
         <SkeletonTable />
+      ) : isGrouped && groupedData ? (
+        <S.GroupedSection>
+          {Object.entries(groupedData).map(([country, players]) => (
+            <S.CountryGroup key={country}>
+              <S.CountryHeader>
+                <S.CountryContainer>
+                  <S.FlagContainer>
+                    <S.CountryFlag
+                      src={getCountryFlagPath(country) || ''}
+                      alt={`${country} flag`}
+                      width={32}
+                      height={32}
+                    />
+                  </S.FlagContainer>
+                  <S.CountryCode>
+                    {getCountryName(country)}
+                  </S.CountryCode>
+                </S.CountryContainer>
+                <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.5)' }}>
+                  {players.length} Players
+                </span>
+              </S.CountryHeader>
+              <S.GroupedPlayers>
+                {players.map(player => (
+                  <S.GroupedPlayerRow key={player.id}>
+                    <S.RankingNumber>{player.ranking}</S.RankingNumber>
+                    <S.PlayerName>{player.playerName}</S.PlayerName>
+                    <S.MoneyValue>{player.money}</S.MoneyValue>
+                  </S.GroupedPlayerRow>
+                ))}
+              </S.GroupedPlayers>
+            </S.CountryGroup>
+          ))}
+        </S.GroupedSection>
       ) : (
         <S.TableContainer ref={tableRef}>
           <S.TableHeaderContainer>

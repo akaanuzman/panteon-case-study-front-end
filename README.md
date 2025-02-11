@@ -10,6 +10,9 @@ I wish you an enjoyable review of my case study and look forward to your feedbac
 
 Thank you!
 
+## Preview
+https://github.com/user-attachments/assets/5559ff1f-af6f-492b-8e5c-2b484a360e0e
+
 ## Features
 
 - 📊 **Dynamic Leaderboard Display**: Real-time display of player rankings with customizable columns

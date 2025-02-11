@@ -8,7 +8,7 @@ interface TimeLeft {
 }
 
 export const Timer = () => {
-    const TARGET_DATE = new Date(2025, 1, 17);
+    const TARGET_DATE = new Date(2025, 1, 18);
     const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0 });
 
     const calculateTimeLeft = (): TimeLeft => {

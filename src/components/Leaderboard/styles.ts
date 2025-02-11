@@ -9,6 +9,11 @@ export const LeaderboardContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   font-family: 'Space Grotesk', sans-serif;
+  padding: 0 1rem;
+
+  @media (max-width: 768px) {
+    padding: 0 0.5rem;
+  }
 `;
 
 export const Title = styled.h1`
@@ -18,6 +23,11 @@ export const Title = styled.h1`
   font-weight: 700;
   color: #fff;
   font-family: 'Space Grotesk', sans-serif;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 export const SearchContainer = styled.div`
@@ -25,7 +35,12 @@ export const SearchContainer = styled.div`
   gap: 1rem;
   margin-bottom: 2rem;
   position: relative;
-  z-index: 1001;      
+  z-index: 1001;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    height: 100px;
+  }
 `;
 
 export const SearchInput = styled.div`
@@ -38,6 +53,7 @@ export const SearchInput = styled.div`
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
+
 
   &:hover, &:focus-within {
     background: rgba(30, 30, 60, 0.5);
@@ -96,9 +112,23 @@ export const GroupIcon = styled(HiSquare3Stack3D)`
 
 export const TableContainer = styled.div`
   background: transparent;
-  overflow: hidden;
-  position: relative;  // Eklendi
-  z-index: 1000;      // Eklendi: autocomplete'in altında kalması için
+  overflow-x: auto;
+  position: relative;
+  z-index: 1000;
+  -webkit-overflow-scrolling: touch;
+  
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+  }
 `;
 
 export const TableHeaderContainer = styled.div`
@@ -107,6 +137,11 @@ export const TableHeaderContainer = styled.div`
   margin-bottom: 1rem;
   backdrop-filter: blur(10px);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+
+  @media (max-width: 768px) {
+    border-radius: 8px;
+    width: 200%;
+  }
 `;
 
 export const TableHeaderRow = styled.div`
@@ -119,6 +154,14 @@ export const TableHeaderRow = styled.div`
   letter-spacing: 0.05em;
   font-weight: 600;
   font-family: 'Space Grotesk', sans-serif;
+  min-width: 600px;
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 0;
+    font-size: 0.75rem;
+    grid-template-columns: 0.8fr 1.5fr 1.2fr 1fr;
+    min-width: 700px;
+  }
 `;
 
 export const TableHeader = styled.div`
@@ -134,6 +177,18 @@ export const TableHeader = styled.div`
 
   &:last-child {
     padding-right: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+    
+    &:first-child {
+      padding-left: 1rem;
+    }
+
+    &:last-child {
+      padding-right: 1rem;
+    }
   }
 `;
 
@@ -205,6 +260,7 @@ export const TableRow = styled.div<{ isSeparator?: boolean, isHighlighted?: bool
   position: relative;
   backdrop-filter: blur(10px);
   border-radius: 8px;
+  min-width: 600px;
   clip-path: polygon(
     45px 0,                   
     100% 0,                    
@@ -213,6 +269,12 @@ export const TableRow = styled.div<{ isSeparator?: boolean, isHighlighted?: bool
     0 100%,                    
     0 30px                    
   );
+
+  @media (max-width: 768px) {
+    grid-template-columns: 0.8fr 1.5fr 1.2fr 1fr;
+    padding: 0.75rem 0;
+    min-width: 700px;
+  }
 
   &:hover {
     background: rgba(30, 30, 60, 0.5);
@@ -257,6 +319,19 @@ export const TableCell = styled.div`
   &:last-child {
     padding-right: 2rem;
     justify-content: center;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+    font-size: 0.9375rem;
+    
+    &:first-child {
+      padding-left: 1rem;
+    }
+
+    &:last-child {
+      padding-right: 1rem;
+    }
   }
 `;
 

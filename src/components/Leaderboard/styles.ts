@@ -4,7 +4,6 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { HiSquare3Stack3D } from 'react-icons/hi2';
 import Image from 'next/image';
 
-
 export const LeaderboardContainer = styled.div`
   width: 100%;
   max-width: 1200px;
@@ -63,23 +62,19 @@ export const SearchIcon = styled(SearchOutlined)`
   min-width: 20px;
 `;
 
-export const GroupButton = styled.button`
-  width: 48px;
-  height: 48px;
-  background: rgba(20, 20, 40, 0.5);
+export const GroupButton = styled.button<{ $isActive: boolean }>`
+  padding: 8px 16px;
+  border-radius: 8px;
   border: none;
-  border-radius: 12px;
+  background: ${props => props.$isActive ? '#6C5DD3' : '#2D2D3B'};
+  color: ${props => props.$isActive ? '#FFFFFF' : '#808191'};
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  margin-left: 16px;
 
   &:hover {
-    background: rgba(30, 30, 60, 0.5);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    background: ${props => props.$isActive ? '#5B4EC7' : '#363645'};
   }
 `;
 
@@ -436,4 +431,24 @@ export const GroupedPlayerRow = styled.div`
   &:hover {
     background: rgba(131, 100, 232, 0.05);
   }
+`;
+
+export const GroupedContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px;
+`;
+
+export const CountrySection = styled.div`
+  background: #1F1F2C;
+  border-radius: 16px;
+  overflow: hidden;
+`;
+
+export const CountryName = styled.h3`
+  margin: 0;
+  color: #FFFFFF;
+  font-size: 18px;
+  font-weight: 600;
 `;

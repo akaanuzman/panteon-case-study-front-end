@@ -8,12 +8,16 @@ export const LeaderboardContainer = styled.div`
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  font-family: 'Space Grotesk', sans-serif;
 `;
 
 export const Title = styled.h1`
-  font-size: 2.5rem;
+  font-size: 3rem;
   text-align: center;
   margin-bottom: 2rem;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
 `;
 
 export const SearchContainer = styled.div`
@@ -47,9 +51,11 @@ export const SearchInput = styled.div`
     font-size: 1rem;
     width: 100%;
     background: transparent !important;
+    font-family: 'Space Grotesk', sans-serif;
 
     &::placeholder {
       color: rgba(255, 255, 255, 0.5);
+      font-family: 'Space Grotesk', sans-serif;
     }
   }
 `;
@@ -111,7 +117,8 @@ export const TableHeaderRow = styled.div`
   font-size: 0.875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
 `;
 
 export const TableHeader = styled.div`
@@ -169,19 +176,24 @@ export const PlayerName = styled.span`
   color: white;
   font-weight: 500;
   transition: all 0.2s ease;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9375rem;
 `;
 
 export const CountryCode = styled.span`
   color: white;
   font-weight: 500;
   transition: all 0.2s ease;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9375rem;
 `;
 
 export const RankingNumber = styled.span`
   color: white;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   transition: all 0.2s ease;
+  font-family: 'Space Grotesk', sans-serif;
 `;
 
 export const TableRow = styled.div<{ isSeparator?: boolean, isHighlighted?: boolean }>`
@@ -315,6 +327,8 @@ export const SkeletonFlag = styled.div`
 export const MoneyValue = styled.span`
   color: #8364e8;
   font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.9375rem;
 `;
 
 export const AutocompleteSuggestions = styled.div`
